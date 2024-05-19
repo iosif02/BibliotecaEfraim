@@ -14,6 +14,7 @@ export default class BookModel {
     order: number = 0;
     status: number = 0;
     transaction_count: number = 0;
+    is_marked: boolean = false;
 
     number: number = 0;
     category_id: number = 0;

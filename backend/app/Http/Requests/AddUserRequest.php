@@ -27,14 +27,22 @@ class AddUserRequest extends FormRequest
         return [
             'email' => 'required|string|unique:users,email',
             'password' => 'required|string|confirmed',
-            'identity_number' => 'required|regex:/^(\d{13})$/',
+            'identity_number' => 'nullable|regex:/^(\d{13})$/',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'address' => 'required|string',
+            'address' => 'nullable|string',
             'phone' => 'required|regex:/^(\d{10})$/',
-            'occupation' => 'required|string',
+            'occupation' => 'nullable|string',
             'birth_date' => 'required|date',
             'roles' => 'required|array',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'identity_number.regex' => 'Identity number must contain exactly 13 digits.',
+            'phone.regex' => 'Phone number must contain exactly 10 digits.',
         ];
     }
 }

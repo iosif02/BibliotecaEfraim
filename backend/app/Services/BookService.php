@@ -47,6 +47,9 @@ class BookService implements IBookService
             $fields['image'] = $imageName;
         }
 
+        $booleanValue = filter_var($fields['is_marked'], FILTER_VALIDATE_BOOLEAN);
+        $fields['is_marked'] = $booleanValue;
+
         return $this->bookRepository->AddBook($fields);
     }
 
@@ -65,6 +68,9 @@ class BookService implements IBookService
 
             $this->fileService->DeleteFile($book['image']);
         }
+
+        $booleanValue = filter_var($fields['is_marked'], FILTER_VALIDATE_BOOLEAN);
+        $fields['is_marked'] = $booleanValue;
 
         return $this->bookRepository->UpdateBook($fields);
     }
@@ -96,6 +102,11 @@ class BookService implements IBookService
     public function SearchBooks(array $filters): ?LengthAwarePaginator
     {
         return $this->bookRepository->SearchBooks($filters);
+    }
+
+    public function SearchGlobalBooks(array $filters): ?LengthAwarePaginator
+    {
+        return $this->bookRepository->SearchGlobalBooks($filters);
     }
 
     public function SearchDelayedBooks(array $filters): ?LengthAwarePaginator
@@ -134,9 +145,9 @@ class BookService implements IBookService
         $book = $this->bookRepository->CheckIfBookIsAvailable($fields['book_id']);
         if(!$book)
             throw new CustomException('Book is unavailable!');
-        $user = $this->bookRepository->CheckIfUserCanBorrowBook($fields['user_id']);
-        if(!$user)
-            throw new CustomException('The user have 2 borrow book already!');
+//        $user = $this->bookRepository->CheckIfUserCanBorrowBook($fields['user_id']);
+//        if(!$user)
+//            throw new CustomException('The user have 2 borrow book already!');
 
         $fields['borrow_date'] = Carbon::now('Europe/Bucharest');
         $fields['return_date'] = Carbon::now('Europe/Bucharest')->addWeeks(2);
@@ -167,7 +178,11 @@ class BookService implements IBookService
         if(!$transaction)
             throw new CustomException('Transaction not found!');
 
-        return $this->bookRepository->ExtendBook($transactionId);
+        if(Carbon::parse($transaction->return_date)->isPast() || Carbon::parse($transaction->return_date)->isToday()){
+            return $this->bookRepository->ExtendBook($transactionId);
+        }
+
+        throw new CustomException("The return date didn't passed!");
     }
 
     public function GetImage(string $context, string $filename): BinaryFileResponse

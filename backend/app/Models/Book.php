@@ -26,10 +26,12 @@ class Book extends Model
         'publisher_id',
         'is_recommended',
         'order',
+        'is_marked',
     ];
 
     protected $casts = [
         'is_recommended' => 'boolean',
+        'is_marked' => 'boolean'
     ];
 
     protected $hidden = ['category_id', 'publisher_id'];

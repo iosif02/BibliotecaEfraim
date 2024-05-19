@@ -56,7 +56,7 @@ var openModal = (selectedCategoryId: number) => {
   />
 
   <CategoriesComponent v-if="store.categories.searchModel.pagination.total" :categories="store.categories.data" routeName="editCategory" @openModal="(selectedCategoryId) => openModal(selectedCategoryId)" />
-  <div class="no-found" v-else-if="!store.isLoading"> No Result Found! </div>
+  <div class="no-found" v-else-if="!store.isLoading"> No result found </div>
 
   <Pagination
     :current-page="store.categories.searchModel.pagination.page"

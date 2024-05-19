@@ -65,7 +65,7 @@ class User extends Authenticatable
     protected function firstName(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => $value ? ucfirst($value) : "",
+            get: fn (string $value) => ucwords($value, '-'),
             set: fn (string $value) => strtolower($value),
         );
     }
@@ -73,7 +73,7 @@ class User extends Authenticatable
     protected function lastName(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => $value ? ucfirst($value) : "",
+            get: fn (string $value) => ucfirst($value),
             set: fn (string $value) => strtolower($value),
         );
     }
@@ -81,7 +81,7 @@ class User extends Authenticatable
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn () => ucfirst($this->attributes['first_name']) . ' ' . ucfirst($this->attributes['last_name']),
+            get: fn () => $this->attributes['first_name'] . ' ' . $this->attributes['last_name'],
         );
     }
 

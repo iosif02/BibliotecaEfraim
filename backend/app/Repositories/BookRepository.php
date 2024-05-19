@@ -86,7 +86,7 @@ class BookRepository implements IBookRepository
     }
     public function GetBookDetailsById(int $bookId): ?Model
     {
-        return Book::select('id', 'title', 'image', 'quantity', 'publisher_id', 'category_id', 'year', 'price')
+        return Book::select('id', 'title', 'image', 'quantity', 'is_marked','publisher_id', 'category_id', 'year', 'price')
             ->with([
                 'Category' => fn($query) => $query->select('id', 'name', 'number'),
                 'Authors' => fn($query) => $query->select('authors.id', 'name'),
@@ -106,37 +106,10 @@ class BookRepository implements IBookRepository
 
     public function SearchBooks(array $filters): ?LengthAwarePaginator
     {
-//        return DB::select("
-//            WITH BookTransactions AS (
-//                SELECT
-//                    b.id,
-//                    b.title,
-//                    b.category_id,
-//                    b.quantity,
-//                    b.image,
-//                    MAX(t.created_at) AS created_at
-//                FROM books b
-//                LEFT JOIN transactions t ON t.book_id = b.id
-//                GROUP BY b.id, b.title, b.category_id, b.quantity, b.image
-//                LIMIT 15
-//                OFFSET 0
-//            )
-//            SELECT * FROM BookTransactions
-//            ORDER BY created_at DESC;
-//        ");
-
-        $book = Book::select('books.id', 'title', 'category_id', 'quantity', 'image')
-//            ->orderByDesc(Transactions::select('created_at')->where('transactions.is_returned', 0)->whereColumn('transactions.book_id', 'books.id')->limit(1))
-//            ->selectRaw('MAX(transactions.created_at) as created_at')
-//            ->leftJoin('transactions', 'transactions.book_id', '=', 'books.id')
-//            ->groupBy('books.id', 'books.title', 'books.category_id', 'books.quantity', 'books.image')
-//            ->orderByDesc('created_at')
+        $book = Book::select('books.id', 'title', 'category_id', 'quantity', 'image', 'is_marked')
             ->with([
                 'Category' => fn($query) => $query->select('id', 'name', 'number'),
                 'Authors' => fn($query) => $query->select('name')
-            ])
-            ->withCount([
-                'Transaction' => fn($query) => $query->where('is_returned', 0)
             ])
             ->orderByDesc('created_at');
 
@@ -154,59 +127,62 @@ class BookRepository implements IBookRepository
             $book->where('publisher_id', $filters['publisher']);
         }
 
-        if(isset($filters['user']) && $filters['user'] != 0){
-            $book->whereHas('Transaction', function ($transaction) use ($filters) {
-                $transaction->where('is_returned', false)
-                    ->where('user_id', $filters['user']);
-            });
-        }
-
         if(isset($filters['title']) && $filters['title'] != '') {
             $book->where('title', 'like', '%' . $filters['title'] . '%');
         }
 
-        if(isset($filters['searchAll']) && $filters['searchAll'] != ''){
-            $book->where('title', 'like', '%' . $filters['searchAll'] . '%')
-            ->orWhereHas('Authors', function ($author) use ($filters) {
-                $author->where('name', 'like', '%' . $filters['searchAll'] . '%');
-            })
-            ->orWhereHas('Transaction', function ($transaction) use ($filters) {
-                $transaction->where('is_returned', false)
-                    ->whereHas('User', function ($user) use ($filters) {
-                        $user->where(function ($query) use($filters) {
-                            $words = explode(" ", $filters['searchAll']);
-                            if(count($words) >= 2){
-                                $firstName = trim(preg_replace('/\s+/', ' ', implode(" ", array_slice($words, 0, count($words) - 1))));
-                                $lastName = $words[count($words) - 1];
-                                $query->where('first_name', 'like', '%'.$firstName.'%')
-                                    ->Where('last_name', 'like', '%'.$lastName.'%')
-                                    ->orWhere(function ($query) use($filters) {
-                                        $query->where('first_name', 'like', '%'.$filters['searchAll'].'%');
-                                    });
-                            }elseif (count($words) != ""){
-                                $query->where('first_name', 'like', '%' . $words[0] . '%')
-                                    ->orWhere('last_name', 'like', '%' . $words[0] . '%');
-                            }
+        return $book->paginate($filters['pagination']['per_page'], null, null, $filters['pagination']['page']);
+    }
+
+    public function SearchGlobalBooks(array $filters): ?LengthAwarePaginator
+    {
+        $book = Book::select('books.id', 'title', 'category_id', 'quantity', 'image', 'is_marked')
+            ->with([
+                'Category' => fn($query) => $query->select('id', 'name', 'number'),
+                'Authors' => fn($query) => $query->select('name')
+            ])
+            ->withCount([
+                'Transaction' => function ($query){
+                    $query->where('is_returned', false);
+                }
+            ])
+            ->orderByDesc('created_at');
+
+        if(isset($filters['title']) && $filters['title'] != ''){
+            $book->where('title', 'like', '%' . $filters['title'] . '%')
+                ->orWhereHas('Authors', function ($author) use ($filters) {
+                    $author->where('name', 'like', '%' . $filters['title'] . '%');
+                })
+                ->orWhereHas('Transaction', function ($transaction) use ($filters) {
+                    $transaction->where('is_returned', false)
+                        ->whereHas('User', function ($user) use ($filters) {
+                            $user->where(function ($query) use($filters) {
+                                $words = explode(" ", $filters['title']);
+                                if(count($words) >= 2){
+                                    $firstName = trim(preg_replace('/\s+/', ' ', implode(" ", array_slice($words, 0, count($words) - 1))));
+                                    $lastName = $words[count($words) - 1];
+                                    $query->where('first_name', 'like', '%'.$firstName.'%')
+                                        ->Where('last_name', 'like', '%'.$lastName.'%')
+                                        ->orWhere(function ($query) use($filters) {
+                                            $query->where('first_name', 'like', '%'.$filters['title'].'%');
+                                        });
+                                }elseif (count($words) != ""){
+                                    $query->where('first_name', 'like', '%' . $words[0] . '%')
+                                        ->orWhere('last_name', 'like', '%' . $words[0] . '%');
+                                }
+                            });
                         });
-                    });
                 });
         }
 
         return $book->paginate($filters['pagination']['per_page'], null, null, $filters['pagination']['page']);
 
-//        // TODO: get status directly from query, do not manipulate the data
-//        $books->getCollection()->transform(function ($book) {
-//            $book->append('status');
-//            return $book;
-//        });
-
-//        return $books;
     }
 
     public function SearchDelayedBooks(array $filters): ?LengthAwarePaginator
     {
         return Transactions::select('id', 'borrow_date', 'return_date', 'user_id', 'book_id')
-            ->where('return_date', '<', date('y-m-d'))->where('is_returned', false)
+            ->where('return_date', '<', Carbon::now('Europe/Bucharest')->subDay())->where('is_returned', false)
             ->with([
                 'Book' => fn($query) => $query->select('id', 'title', 'category_id', 'image'),
                 'User' => fn($query) => $query->select('id', 'first_name', 'last_name'),
@@ -228,15 +204,34 @@ class BookRepository implements IBookRepository
 //        return $transaction;
     }
 
-    public function SearchPopularBooks(array $filters): ?LengthAwarePaginator
+    public function SearchPopularBooks(array $filters): LengthAwarePaginator
     {
+//        $books = Book::select('id', 'title', 'category_id', 'image')
+//            ->withCount('Transaction')
+//            ->with([
+//                'Category' => fn($query) => $query->select('id', 'name', 'number'),
+//                'Authors' => fn($query) => $query->select('authors.id', 'name'),
+//            ])
+//            ->orderByDesc('transaction_count')
+//            ->take($filters['pagination']['per_page'])
+//            ->get();
+//
+//        if (isset($filters['title']) && $filters['title'] != '') {
+//            $books = $books->filter(function ($book) use ($filters) {
+//                return stripos($book->title, $filters['title']) !== false;
+//            });
+//        }
+//
+//        return $books;
+
         $books = DB::table('books AS b')
-            ->select('b.id', 'b.title', 'b.category_id', 'b.image', 'c.name AS category', 'c.number AS number',)
+            ->select('b.id', 'b.title', 'b.category_id', 'b.image', 'is_marked', 'c.name AS category', 'c.number AS number',)
             ->selectRaw('COUNT(t.id) AS count')
             ->join('categories AS c', 'b.category_id', '=', 'c.id')
             ->join('transactions AS t', 'b.id', '=', 't.book_id')
-            ->groupBy('b.id', 'b.title', 'b.category_id', 'b.image', 'c.name', 'c.number')
-            ->orderByDesc('count');
+            ->groupBy('b.id', 'b.title', 'b.category_id', 'b.image', 'is_marked', 'c.name', 'c.number')
+            ->orderByDesc('count')
+            ->having('count', '>', 13);
 
         if(isset($filters['title']) && $filters['title'] != '') {
             $books->where('title', 'like', '%'.$filters['title'].'%');
@@ -308,9 +303,8 @@ class BookRepository implements IBookRepository
     public function ExtendBook(int $transactionId): bool
     {
         $transaction = Transactions::find($transactionId);
-        $currentDate = Carbon::parse($transaction->return_date);
-        $oneWeeksLater = $currentDate->addWeeks(1);
-        $transaction->return_date = $oneWeeksLater;
+        $twoWeeksLater = Carbon::now('Europe/Bucharest')->addWeeks(2);
+        $transaction->return_date = $twoWeeksLater;
         $transaction->update();
         return true;
     }

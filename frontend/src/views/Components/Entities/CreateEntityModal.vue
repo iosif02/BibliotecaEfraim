@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Form, Field, ErrorMessage } from 'vee-validate';
-import * as yup from 'yup';
 import { useEntitiesStore } from '@/stores/entities-store';
 import type AuthorModel from '@/models/entities/AuthorModel';
 import type { PropType } from 'vue';
 import type CategoryModel from '@/models/entities/CategoryModel';
 import type PublisherModel from '@/models/entities/PublisherModel';
+import AuthorFormComponent from '@/views/Components/Entities/AuthorFormComponent.vue';
+import CategoryFormComponent from '@/views/Components/Entities/CategoryFormComponent.vue';
+import PublisherFormComponent from '@/views/Components/Entities/PublisherFormComponent.vue';
 
 const props = defineProps({
   title: {
@@ -22,21 +23,6 @@ const props = defineProps({
   }
 })
 
-const validateFormAuthor = yup.object({
-    name: yup.string().min(5).max(28).required(),
-});
-
-const validateFormCategory = yup.object({
-    name: yup.string().required(),
-    description: yup.string().required(),
-    number: yup.number().required(),
-});
-
-const validateFormPublisher = yup.object({
-    name: yup.string().required(),
-    city: yup.string().required(),
-});
-
 const store = useEntitiesStore();
 const emit = defineEmits(['createEntity', 'hideModal'])
 
@@ -49,6 +35,9 @@ var onSubmit = (entity: any) => {
                 store.fetchEntities();
             }
         })
+        .finally(() => {
+            emit.call(this, 'hideModal');
+        });
     }
 
     if(props.typeEntity == 'Category'){
@@ -58,6 +47,9 @@ var onSubmit = (entity: any) => {
                 emit.call(this, 'createEntity', result);
                 store.fetchEntities();
             }
+        })
+        .finally(() => {
+            emit.call(this, 'hideModal');
         });
     }
 
@@ -68,6 +60,9 @@ var onSubmit = (entity: any) => {
                 emit.call(this, 'createEntity', result);
                 store.fetchEntities();
             }
+        })
+        .finally(() => {
+            emit.call(this, 'hideModal');
         });
     }
 };
@@ -79,47 +74,23 @@ var onSubmit = (entity: any) => {
         <div class="modal">
             <p class="modal-title">{{ props.title }}</p>
 
-            <Form v-if="props.typeEntity == 'Author'" @submit="onSubmit" :validation-schema="validateFormAuthor" :initial-values="props.entity" class="form-control">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <Field name="name" />
-                    <ErrorMessage name="name" />
-                </div>
-                <input value="Add" type="submit" class="btn w-100">
-            </Form>
+            <AuthorFormComponent
+                v-if="props.typeEntity == 'Author'"
+                :initial-value="(props.entity as AuthorModel)"
+                @submit="onSubmit"
+            />
 
-            <Form v-if="props.typeEntity == 'Category'" @submit="onSubmit" :validation-schema="validateFormCategory" :initial-values="props.entity" class="form-control">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <Field name="name" />
-                    <ErrorMessage name="name" />
-                </div>
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <Field name="description" />
-                    <ErrorMessage name="description" />
-                </div>
-                <div class="form-group">
-                    <label for="number">Number</label>
-                    <Field name="number" type="number" />
-                    <ErrorMessage name="number" />
-                </div>
-                <input value="Add" type="submit" class="btn w-100">
-            </Form>
+            <CategoryFormComponent 
+                v-if="props.typeEntity == 'Category'"
+                :initial-value="(props.entity as CategoryModel)"
+                @submit="onSubmit"
+            />
 
-            <Form v-if="props.typeEntity == 'Publisher'" @submit="onSubmit" :validation-schema="validateFormPublisher" :initial-values="props.entity" class="form-control">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <Field name="name" />
-                    <ErrorMessage name="name" />
-                </div>
-                <div class="form-group">
-                    <label for="city">City</label>
-                    <Field name="city" />
-                    <ErrorMessage name="city" />
-                </div>
-                <input value="Add" type="submit" class="btn w-100">
-            </Form>
+            <PublisherFormComponent
+                v-if="props.typeEntity == 'Publisher'"
+                :initial-value="(props.entity as PublisherModel)"
+                @submit="onSubmit"
+            />
 
             <button class="btn w-100 cancel" @click="$emit('hideModal')">Cancel</button>
         </div>
@@ -144,11 +115,8 @@ var onSubmit = (entity: any) => {
     height: 100%;
     position: fixed;
     background-color: rgba(60, 60, 60, 0.5);
-    /* background-color: black;
-    opacity: .2; */
 }
 .modal {
-    /* height: 30%; */
     width: 90%;
     border-radius: 12px;
     background-color: white;

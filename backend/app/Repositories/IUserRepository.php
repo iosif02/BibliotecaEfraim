@@ -14,6 +14,8 @@ interface IUserRepository
     public function GetUserById(int $userId): ?User;
     public function GetUserDetailsById(int $userId): ?User;
     public function SearchUsers(array  $filters): ?LengthAwarePaginator;
+    public function SearchUserBorrowedBooks(array $filters): ?LengthAwarePaginator;
+    public function SearchUserHistoryBooks(array $filters): ?LengthAwarePaginator;
     public function AddUser(array $fields): bool;
     public function UpdateUser(array $fields): bool;
     public function DeleteUser(int $userId): bool;

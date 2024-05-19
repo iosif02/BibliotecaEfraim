@@ -17,7 +17,12 @@ defineProps({
         <template v-for="book in books" >
             <RouterLink :to="{ name: 'bookDetails', params: { id: book.id} }" style="text-decoration: none;">
                 <div class="book">
-                    <img :src="$filters.imageFilter(book.image)" alt="">
+                    <div class="image">
+                        <img :src="$filters.imageFilter(book.image)" alt="">
+                        <div v-if="book.is_marked" class="mark-container">
+                            <span class="pi pi-star-fill mark"></span>
+                        </div>
+                    </div>
                     <div class="details">
                         <div class="top-section">
                             <div class="title">{{ book.title }}</div>
@@ -31,7 +36,7 @@ defineProps({
                                     <span class="category-name">{{ book.category?.name }}</span>
                                 </div>
                                 <div class="btn-link">
-                                    <RouterLink :to="{ name: 'editBook', params: { id: book.id }, query: { actionName: 'update' } }">
+                                    <RouterLink :to="{ name: 'editBook', params: { id: book.id } }">
                                         <button class="btn-edit">Edit</button>
                                     </RouterLink>
                                 </div>
@@ -50,12 +55,38 @@ defineProps({
     width: 100%;
     margin-bottom: 25px;
 }
-img {
+.image {
     width: 83px;
     height: 90px;
     border-radius: 12px;
-    object-fit: cover;
     margin-right: 16px;
+    position: relative;
+}
+.image img {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+}
+.mark-container{
+  top: 0px;
+  right: 10px;
+  position: absolute;
+  width: 1.1rem;
+  height: 1.6rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 5px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.mark{
+  font-size: 0.7rem; 
+  color: yellow;
+  top: 10px;
+  left: 15px;
 }
 .details {
     width: calc(100% - 99px);

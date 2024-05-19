@@ -6,7 +6,7 @@ export default class SearchBookModel {
     publisher: number = 0;
     category: number = 0;
     user: number = 0;
-    searchAll: string = "";
+    isReturned: boolean = false;
 
     pagination: Pagination = new Pagination();
 }

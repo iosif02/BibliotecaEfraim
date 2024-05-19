@@ -10,10 +10,10 @@ export default
             name: "login",
             component: () => import("@/views/Pages/Auth/LoginView.vue"),
         },
-        {
-            path: "/register",
-            name: "register",
-            component: () => import("@/views/Pages/Auth/RegisterView.vue"),
-        },
+        // {
+        //     path: "/register",
+        //     name: "register",
+        //     component: () => import("@/views/Pages/Auth/RegisterView.vue"),
+        // },
     ]
 };

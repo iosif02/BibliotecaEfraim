@@ -13,10 +13,8 @@ if(!props.id || props.id == '0' || !parseInt(props.id))
     router.replace({ name: 'author' });
 
 const store = useBooksStore();
-
 store.publisherBooks.searchModel.publisher = parseInt(props.id || '')
-
-// if(!store.authorBooks.data.length || store.authorBooks.data[0].authors[0].pivot.author_id != parseInt(props.id || ''))
+store.publisherBooks.searchModel.pagination.page = 1
 store.searchPublisherBooks();
 
 </script>
@@ -33,7 +31,7 @@ store.searchPublisherBooks();
     />
 
     <PopularBooks v-if="store.publisherBooks.searchModel.pagination.total" :books="store.publisherBooks.data" />
-    <div class="no-found" v-else-if="!store.isLoading"> No Result Found! </div>
+    <div class="no-found" v-else-if="!store.isLoading"> No result found </div>
 
     <Pagination
         :current-page="store.publisherBooks.searchModel.pagination.page"

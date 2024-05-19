@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
-class UpdatePublisherRequest extends FormRequest
+class UserBorrowedBookRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +14,7 @@ class UpdatePublisherRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return Auth::check();
     }
 
     /**
@@ -24,9 +25,12 @@ class UpdatePublisherRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string',
-            'city' => 'nullable|string',
-            'publisherId' => 'required|integer'
+            'title' => 'nullable|string',
+            'user' => 'nullable|integer',
+            'isReturned' => 'required|boolean',
+            'pagination' => 'required',
+            'pagination.per_page' => 'required|integer',
+            'pagination.page' => 'required|integer',
         ];
     }
 }

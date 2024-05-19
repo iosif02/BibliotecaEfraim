@@ -18,12 +18,12 @@ if(!store.homepage.isFetched){
     <Loading v-if="store.isLoading" />
 
     <SearchBar
-        :defaultValue="store.homepage.searchModel.searchAll"
-        @valueChanged="(value: any) => (store.homepage.searchModel.searchAll = value ,store.homepage.searchModel.pagination.page = 1, store.homepage.searchModel.searchAll && store.searchHomeBooks())"
+        :defaultValue="store.homepage.searchModel.title"
+        @valueChanged="(value: any) => (store.homepage.searchModel.title = value ,store.homepage.searchModel.pagination.page = 1, store.homepage.searchModel.title && store.searchHomeBooks())"
         placeholder='Search book...'
     />
 
-    <div v-if="!store.homepage.searchModel.searchAll">
+    <div v-if="!store.homepage.searchModel.title">
       <div class="delayed-books">
         <TitleSection :title="`Late (${store.homepage.data.totalDelayedBooks})`" :route-name="'delayedBooks'" />
         <DelayedBooks :books="store.homepage.data.delayedBooks"/>

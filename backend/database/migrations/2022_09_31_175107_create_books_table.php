@@ -18,17 +18,17 @@ return new class extends Migration
         Schema::create('books', function (Blueprint $table) {
             $table->id();
             $table->string('title', 255);
-            $table->integer('year')->nullable();
+            $table->integer('year');
             $table->float('price')->nullable();
             $table->string('image')->nullable();
-            $table->integer('quantity')->nullable();
+            $table->integer('quantity');
             $table->boolean('is_recommended')->default(false);
             $table->integer('order')->nullable();
-            $table->foreignIdFor(Category::class)->nullable()
+            $table->boolean('is_marked')->nullable();
+            $table->foreignIdFor(Category::class)
                 ->constrained()->onDelete('restrict')->onUpdate('restrict');
-            $table->foreignIdFor(Publisher::class)->nullable()
+            $table->foreignIdFor(Publisher::class)
                 ->constrained()->onDelete('restrict')->onUpdate('restrict');
-            $table->string('mark', 64);
             $table->timestamps();
             $table->softDeletes();
         });

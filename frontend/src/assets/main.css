@@ -181,3 +181,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.mandatory {
+  color: red;
+}
+
+.router-link{
+  text-decoration: none;
+}

@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Public routes
-Route::post('register', [AuthController::class, 'Register']);
+//Route::post('register', [AuthController::class, 'Register']);
 Route::post('login', [AuthController::class, 'Login']);
 
 Route::get('/storage-preview/{context}/{path}', [BookController::class, 'GetImage'])->where('path', '.*');
@@ -36,6 +36,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/update', [BookController::class, 'UpdateBook']);
         Route::delete('/delete/{bookId}', [BookController::class, 'DeleteBook']);
         Route::post('/search', [BookController::class, 'SearchBooks']);
+        Route::post('/search-global', [BookController::class, 'SearchGlobalBooks']);
 
         Route::post('/borrow', [BookController::class, 'BorrowBook']);
         Route::post('/return/{transactionId}', [BookController::class, 'ReturnBook']);
@@ -78,6 +79,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/update-user', [UserController::class, 'UpdateUser']);
         Route::delete('/delete-user/{userId}', [UserController::class, 'DeleteUser']);
         Route::get('/user/profile', [UserController::class, 'GetProfile']);
+        Route::post('search-borrowed-books', [UserController::class, 'SearchUserBorrowedBooks']);
+//        Route::post('search-history-books', [UserController::class, 'SearchUserHistoryBooks']);
     });
 
     Route::post('logout', [AuthController::class, 'Logout']);

@@ -32,27 +32,27 @@ const validateForm = yup.object({
 	<h2 class="auth-title">Create Account</h2>
 	<Form class="form-control" @submit="register" :validation-schema="validateForm">
 		<div class="form-group">
-			<p>First Name</p>
+			<p>First Name <span class="mandatory">*</span> </p>
 			<Field name="first_name" type="text" />
 			<ErrorMessage name="email" />
 		</div>
 		<div class="form-group">
-			<p>Last Name</p>
+			<p>Last Name <span class="mandatory">*</span> </p>
 			<Field name="last_name" type="text" />
 			<ErrorMessage name="email" />
 		</div>
 		<div class="form-group">
-			<p>Email</p>
+			<p>Email <span class="mandatory">*</span> </p>
 			<Field name="email" type="email" />
 			<ErrorMessage name="email" />
 		</div>
 		<div class="form-group">
-			<p>Password</p>
+			<p>Password <span class="mandatory">*</span> </p>
 			<Field name="password" type="password" />
 			<ErrorMessage name="password" />
 		</div>
 		<div class="form-group">
-			<p>Confirm Password</p>
+			<p>Confirm Password <span class="mandatory">*</span> </p>
 			<Field name="password_confirmation" type="password" />
 			<ErrorMessage name="password_confirmation" />
 		</div>

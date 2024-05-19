@@ -15,6 +15,7 @@ interface IBookService
     public function DeleteBook(int $bookId): bool;
     public function GetBookDetailsById(int $bookId): Model;
     public function SearchBooks(array $filters): ?LengthAwarePaginator;
+    public function SearchGlobalBooks(array $filters): ?LengthAwarePaginator;
     public function SearchDelayedBooks(array $filters): ?LengthAwarePaginator;
     public function SearchPopularBooks(array $filters): ?LengthAwarePaginator;
     public function SearchRecommendedBooks(array $filters): ?LengthAwarePaginator;

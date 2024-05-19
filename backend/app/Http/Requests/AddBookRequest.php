@@ -28,13 +28,14 @@ class AddBookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|unique:books,title',
+            'title' => 'required|string',
             'category_id' => 'required|integer',
-            'quantity' => 'nullable|integer',
+            'quantity' => 'required|integer',
             'imageFile' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
             'price' => 'nullable|integer',
-            'year' => 'nullable|integer',
-            'publisher_id' => 'nullable|integer',
+            'year' => 'required|integer',
+            'is_marked' => 'nullable|string',
+            'publisher_id' => 'required|integer',
             'authors' => 'required|array',
         ];
     }

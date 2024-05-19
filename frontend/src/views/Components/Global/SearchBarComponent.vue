@@ -23,7 +23,7 @@ var textSearch = () => {
   if(searchValue != ''){
     timer = setTimeout(() => {
       emit.call(this, 'valueChanged', searchValue);
-    }, 400)
+    }, 500)
   }else{
     emit.call(this, 'valueChanged', searchValue);
   }

@@ -27,15 +27,24 @@ class UpdateUserRequest extends FormRequest
         return [
             'imageFile' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
             'email' => 'required|string|unique:users,email,' .request('userId'),
-            'identity_number' => 'required|regex:/^(\d{13})$/',
+            'identity_number' => 'nullable|regex:/^(\d{13})$/',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'address' => 'required|string',
+            'password' => 'nullable|string|confirmed',
+            'address' => 'nullable|string',
             'phone' => 'required|regex:/^(\d{10})$/',
-            'occupation' => 'required|string',
+            'occupation' => 'nullable|string',
             'birth_date' => 'required|date',
             'roles' => 'required|array',
             'userId' => 'required|integer',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'identity_number.regex' => 'Identity number must contain exactly 13 digits.',
+            'phone.regex' => 'Phone number must contain exactly 10 digits.',
         ];
     }
 }

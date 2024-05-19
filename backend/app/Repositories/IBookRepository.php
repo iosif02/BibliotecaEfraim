@@ -17,6 +17,7 @@ interface IBookRepository
     public function GetBookById(int $bookId): ?Book;
     public function GetBookDetailsById(int $bookId): ?Model;
     public function SearchBooks(array $filters): ?LengthAwarePaginator;
+    public function SearchGlobalBooks(array $filters): ?LengthAwarePaginator;
     public function SearchDelayedBooks(array $filters): ?LengthAwarePaginator;
     public function SearchPopularBooks(array $filters): ?LengthAwarePaginator;
     public function GetAuthorsById(array $bookIds): Collection;

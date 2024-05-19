@@ -1,16 +1,9 @@
 <script setup lang="ts">
-import { Form, Field, ErrorMessage } from 'vee-validate';
-import * as yup from 'yup';
 import { useEntitiesStore } from '@/stores/entities-store';
 import router from '@/router';
+import CategoryFormComponent from '@/views/Components/Entities/CategoryFormComponent.vue';
 
 const store = useEntitiesStore();
-
-const validateForm = yup.object({
-    name: yup.string().required(),
-    description: yup.string().required(),
-    number: yup.number().required(),
-});
 
 var onSubmit = (category: any) => {
   store.createCategory(category)
@@ -29,24 +22,9 @@ var onSubmit = (category: any) => {
     <GoBack goBackText="Add Category"/>
 	</div>
 
-  <Form @submit="onSubmit" :validation-schema="validateForm" class="form-control">
-    <div class="form-group">
-      <label for="name">Name</label>
-      <Field name="name" />
-      <ErrorMessage name="name" />
-    </div>
-    <div class="form-group">
-      <label for="description">Description</label>
-      <Field name="description" />
-      <ErrorMessage name="description" />
-    </div>
-    <div class="form-group">
-      <label for="number">Number</label>
-      <Field name="number" type="number" />
-      <ErrorMessage name="number" />
-    </div>
-    <input value="Add" type="submit" class="btn w-100">
-  </Form>
+  <CategoryFormComponent 
+    @submit="onSubmit"
+  />  
 </template>
 
 <style scoped>

@@ -21,25 +21,28 @@ if(!store.roles.length) {
 }
 const validateForm = yup.object({
   email: yup.string().required().email(),
-  identity_number: yup.number().required(),
   first_name: yup.string().required(),
   last_name: yup.string().required(),
-  address: yup.string().required(),
-  phone: yup.number().required(),
-  occupation: yup.string().required(),
+  address: yup.string().nullable(),
+  phone: yup.string().required().min(10),
+  occupation: yup.string().nullable(),
   birth_date: yup.date().required(),
+
+  identity_number: yup.string().when(value =>(
+    value ? yup.string().min(13).max(13) : yup.string().nullable() 
+  )),
 });
 
 var onSubmit = (user: any) => {
   delete user.photo_url;
   user.userId = props.id;
   user.roles = user.roles.map((x: RoleModel) => x.id);
+  user.identity_number = user.identity_number == '-' ? null : user.identity_number;
   store.updateUser(user)
   .then(result => {
     if(result)
       router.back();
   });
-  console.log(user)
 }
 
 const filteredRoles = ref<Array<RoleModel>>([]);
@@ -52,13 +55,20 @@ var searchRoles = (event: any) => {
 let focusedElement: any = ref(null)
 
 var blurInput = (e: any) => {
-    if(focusedElement) focusedElement?.target?.focus();
-    focusedElement.value = null;
+  if(focusedElement) focusedElement?.target?.focus();
+  focusedElement.value = null;
 }
 
 function onFocusElement(e: any) {
-    focusedElement = e;
+  focusedElement = e;
 }
+
+const originalValue = store.user.user_details.identity_number;
+const transformedValue = originalValue !== 0 ? String(originalValue) : null;
+
+const identity_number = {
+  identity_number: transformedValue === '-' ? null : transformedValue
+};
 
 </script>
 
@@ -69,11 +79,16 @@ function onFocusElement(e: any) {
     <GoBack goBackText="Edit User"/>
 	</div>
 
-  <Form @submit="onSubmit" :validation-schema="validateForm" :initial-values="{...store.user, ...store.user.user_details}" class="form-control">
+  <Form @submit="onSubmit" :validation-schema="validateForm" :initial-values="{...store.user, ...store.user.user_details, ...identity_number}" class="form-control">
     <div class="form-group">
-      <label for="email">Email</label>
-      <Field name="email" />
-      <ErrorMessage name="email" />
+      <label for="first_name">First name <span class="mandatory">*</span> </label>
+      <Field name="first_name" />
+      <ErrorMessage name="first_name" />
+    </div>
+    <div class="form-group">
+      <label for="last_name">Last name <span class="mandatory">*</span> </label>
+      <Field name="last_name" />
+      <ErrorMessage name="last_name" />
     </div>
     <div class="form-group">
       <label for="identity_number">Identity number</label>
@@ -81,14 +96,14 @@ function onFocusElement(e: any) {
       <ErrorMessage name="identity_number" />
     </div>
     <div class="form-group">
-      <label for="first_name">First name</label>
-      <Field name="first_name" />
-      <ErrorMessage name="first_name" />
+      <label for="phone">Phone <span class="mandatory">*</span> </label>
+      <Field name="phone" type="number" maxlength="2"/>
+      <ErrorMessage name="phone" />
     </div>
     <div class="form-group">
-      <label for="last_name">Last name</label>
-      <Field name="last_name" />
-      <ErrorMessage name="last_name" />
+      <label for="email">Email <span class="mandatory">*</span> </label>
+      <Field name="email" />
+      <ErrorMessage name="email" />
     </div>
     <div class="form-group">
       <label for="address">Address</label>
@@ -96,25 +111,20 @@ function onFocusElement(e: any) {
       <ErrorMessage name="address" />
     </div>
     <div class="form-group">
-      <label for="phone">Phone</label>
-      <Field name="phone" type="number" />
-      <ErrorMessage name="phone" />
-    </div>
-    <div class="form-group">
       <label for="occupation">Occupation</label>
       <Field name="occupation" />
       <ErrorMessage name="occupation" />
     </div>
     <div class="form-group">
-      <label for="birth_date">Birth date</label>
+      <label for="birth_date">Birth date <span class="mandatory">*</span> </label>
       <Field name="birth_date" type="date" />
       <ErrorMessage name="birth_date" />
     </div>
     <div class="form-group">
       <Field name="roles" type="hidden" :value="selectedRoles" v-model="selectedRoles" />
-      <label for="authors">Roles</label>
+      <label for="authors">Roles <span class="mandatory">*</span> </label>
       <AutoComplete 
-        name="roles" v-model="selectedRoles" :suggestions="filteredRoles" @complete="searchRoles($event)" optionLabel="name" :dropdown="true" :multiple="true" 
+        name="roles" v-model="selectedRoles" :suggestions="filteredRoles" @complete="searchRoles($event)" optionLabel="name" :dropdown="true" :multiple="true"
         @focus="onFocusElement" @item-select="blurInput"
       />
       <ErrorMessage name="roles" />

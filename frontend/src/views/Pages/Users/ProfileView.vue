@@ -31,13 +31,21 @@ var onFile = (e: any) => {
 
 const validateForm = yup.object({
   email: yup.string().required().email(),
-  identity_number: yup.number().required(),
   first_name: yup.string().required(),
   last_name: yup.string().required(),
-  address: yup.string().required(),
-  phone: yup.number().required(),
-  occupation: yup.string().required(),
+  address: yup.string().nullable(),
+  phone: yup.string().required().min(10),
+  occupation: yup.string().nullable(),
   birth_date: yup.date().required(),
+
+  identity_number: yup.string().when(value =>(
+    value ? yup.string().min(13).max(13) : yup.string().nullable() 
+  )),
+
+  password: yup.string().when(value =>(
+    value ? yup.string().min(8) : yup.string().nullable() 
+  )),
+	password_confirmation: yup.string().nullable().oneOf([yup.ref('password')], 'Passwords do not match')
 });
 
 const backgroundColor = [
@@ -66,15 +74,18 @@ function getNameIntial(first_initial: String, second_initial: String) {
 const backgroundColorStyle = getRandomColor();
 
 var onSubmit = (user: any) => {
+  const identity_number = user.identity_number == null || user.identity_number == '-' ? '' : user.identity_number;
   let formData = new FormData()
   profileId.value = store.profile.id
   formData.append('email', user?.email)
-  formData.append('identity_number', user?.identity_number)
+  formData.append('identity_number', identity_number);
   formData.append('first_name', user?.first_name)
   formData.append('last_name', user?.last_name)
-  formData.append('address', user?.address)
+  user.password && formData.append('password', user.password)
+  user.password_confirmation && formData.append('password_confirmation', user.password_confirmation)
+  formData.append('address', user?.address || '')
   formData.append('phone', user?.phone)
-  formData.append('occupation', user?.occupation)
+  formData.append('occupation', user?.occupation || '')
   formData.append('birth_date', user?.birth_date)
   formData.append('userId', profileId.value)
 
@@ -114,6 +125,24 @@ let formatDate = (date: any) => {
   return date;
 }
 
+let focusedElement: any = ref(null)
+
+var blurInput = (e: any) => {
+    if(focusedElement) focusedElement?.target?.focus();
+    focusedElement.value = null;
+}
+
+function onFocusElement(e: any) {
+    focusedElement = e;
+}
+
+const originalValue = store.user.user_details.identity_number;
+const transformedValue = originalValue !== 0 ? String(originalValue) : null;
+
+const identity_number = {
+  identity_number: transformedValue === '-' ? null : transformedValue
+};
+
 </script>
 
 <template>
@@ -121,7 +150,7 @@ let formatDate = (date: any) => {
 
   <GoBack goBackText="Profile"/>
 
-  <Form v-if="isEdit" @submit="onSubmit" :validation-schema="validateForm" class="form-control" :initial-values="{...store.profile, ...store.profile.user_details}" ref="myForm">
+  <Form v-if="isEdit" @submit="onSubmit" :validation-schema="validateForm" class="form-control" :initial-values="{ ...store.profile, ...store.profile.user_details, ...identity_number }" ref="myForm">
     <div class="profile-image-container">
       <div v-if="imgSrc?.toString() || store.profile.user_details?.photo_url" >
         <img :src="imgSrc?.toString() || $filters.imageFilter(store.profile.user_details?.photo_url)" />
@@ -135,24 +164,43 @@ let formatDate = (date: any) => {
     </div>
     <div class="profile-details">
       <div class="form-group">
-        <label for="email">Email</label>
-        <Field name="email" />
-        <ErrorMessage name="email" />
+        <label for="first_name">First name <span class="mandatory">*</span> </label>
+        <Field name="first_name" />
+        <ErrorMessage name="first_name" />
       </div>
+      <div class="form-group">
+        <label for="last_name">Last name <span class="mandatory">*</span> </label>
+        <Field name="last_name" />
+        <ErrorMessage name="last_name" />
+      </div>
+
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <Field name="password" type="password" />
+        <ErrorMessage name="password" />
+      </div>
+      <div class="form-group">
+        <label for="password_confirmation">Confirm Password</label>
+        <Field name="password_confirmation" type="password" />
+        <ErrorMessage name="password_confirmation" />
+      </div>
+
+
       <div class="form-group">
         <label for="identity_number">Identity number</label>
         <Field name="identity_number" type="number" />
         <ErrorMessage name="identity_number" />
       </div>
       <div class="form-group">
-        <label for="first_name">First name</label>
-        <Field name="first_name" />
-        <ErrorMessage name="first_name" />
+        <label for="phone">Phone  <span class="mandatory">*</span> </label>
+        <Field name="phone" type="number" />
+        <ErrorMessage name="phone" />
       </div>
       <div class="form-group">
-        <label for="last_name">Last name</label>
-        <Field name="last_name" />
-        <ErrorMessage name="last_name" />
+        <label for="email">Email  <span class="mandatory">*</span> </label>
+        <Field name="email" />
+        <ErrorMessage name="email" />
       </div>
       <div class="form-group">
         <label for="address">Address</label>
@@ -160,28 +208,26 @@ let formatDate = (date: any) => {
         <ErrorMessage name="address" />
       </div>
       <div class="form-group">
-        <label for="phone">Phone</label>
-        <Field name="phone" type="number" />
-        <ErrorMessage name="phone" />
-      </div>
-      <div class="form-group">
         <label for="occupation">Occupation</label>
         <Field name="occupation" />
         <ErrorMessage name="occupation" />
       </div>
       <div class="form-group">
-        <label for="birth_date">Birth date</label>
+        <label for="birth_date">Birth date  <span class="mandatory">*</span> </label>
         <Field name="birth_date" type="date" min="1950-01-01" max="2050-12-31" />
         <ErrorMessage name="birth_date" />
       </div>
       <div class="form-group">
         <Field name="roles" type="hidden" :value="selectedRoles" v-model="selectedRoles" />
-        <label for="authors">Roles</label>
-        <AutoComplete name="roles" v-model="selectedRoles" :suggestions="filteredRoles" @complete="searchRoles($event)" optionLabel="name" :dropdown="true" :multiple="true" />
+        <label for="authors">Roles <span class="mandatory">*</span> </label>
+        <AutoComplete 
+          name="roles" v-model="selectedRoles" :suggestions="filteredRoles" @complete="searchRoles($event)" optionLabel="name" :dropdown="true" :multiple="true" 
+          @focus="onFocusElement" @item-select="blurInput"
+        />
         <ErrorMessage name="roles" />
       </div>
     </div>
-    <input value="Edit" type="submit" class="btn w-100">
+    <input value="Save" type="submit" class="btn w-100">
   </Form>
 
   <div v-else>

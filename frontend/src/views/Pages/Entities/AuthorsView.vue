@@ -56,7 +56,7 @@ var openModal = (selectedAuthorId: number) => {
   />
 
   <AuthorsComponent v-if="store.authors.searchModel.pagination.total" :authors="store.authors.data" routeName="editAuthor" @openModal="(selectedAuthorId) => openModal(selectedAuthorId)"/>
-  <div class="no-found" v-else-if="!store.isLoading"> No Result Found! </div>
+  <div class="no-found" v-else-if="!store.isLoading"> No result found </div>
 
 
   <Pagination

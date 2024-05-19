@@ -18,6 +18,7 @@ import Loading from '@/views/Components/Global/LoadingComponent.vue';
 import LoadingButton from '@/views/Components/Global/LoadingButtonComponent.vue';
 import SearchBar from '@/views/Components/Global/SearchBarComponent.vue';
 import Modal from '@/views/Components/Global/ModalComponent.vue';
+import Bounded from '@/views/Components/Global/BoundedComponent.vue'
 
 import { filters } from "@/helpers/Filter";
 
@@ -35,6 +36,7 @@ app.component('Loading', Loading);
 app.component('LoadingButton', LoadingButton);
 app.component('SearchBar', SearchBar);
 app.component('Modal', Modal);
+app.component('Bounded', Bounded);
 
 app.component('AutoComplete', AutoComplete);
 

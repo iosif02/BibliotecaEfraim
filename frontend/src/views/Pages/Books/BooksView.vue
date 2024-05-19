@@ -24,7 +24,7 @@ store.searchBooks();
   </div>
 
   <PopularBooks v-if="store.books.searchModel.pagination.total" :books="store.books.data" />
-  <div class="no-found" v-else-if="!store.isLoading"> No Result Found! </div>
+  <div class="no-found" v-else-if="!store.isLoading"> No result found </div>
 
   <Pagination
     :current-page="store.books.searchModel.pagination.page"

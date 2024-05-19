@@ -18,10 +18,10 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)
                 ->constrained()->onDelete('restrict')->onUpdate('restrict');
-            $table->string('identity_number', 16);
-            $table->string('address', 16);
+            $table->string('identity_number', 16)->nullable();
+            $table->string('address', 16)->nullable();
             $table->string('phone', 16);
-            $table->string('occupation');
+            $table->string('occupation')->nullable();
             $table->date('birth_date');
             $table->string('photo_url')->nullable();
             $table->timestamps();

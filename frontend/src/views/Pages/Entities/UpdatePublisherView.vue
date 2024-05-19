@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { Form, Field, ErrorMessage } from 'vee-validate';
-import * as yup from 'yup';
 import { useEntitiesStore } from '@/stores/entities-store';
+import PublisherFormComponent from '@/views/Components/Entities/PublisherFormComponent.vue';
 import router from '@/router';
 
 const props = defineProps({
@@ -14,11 +13,6 @@ if(!props.id || props.id == '0' || !parseInt(props.id)){
 
 const store = useEntitiesStore();
 store.fetchSelectedPublisher(props.id || '');
-
-const validateForm = yup.object({
-    name: yup.string().required(),
-    city: yup.string().required(),
-});
 
 var onSubmit = (publisher: any) => {
   publisher.publisherId = props.id
@@ -38,19 +32,10 @@ var onSubmit = (publisher: any) => {
     <GoBack goBackText="Edit Publisher"/>
 	</div>
 
-  <Form @submit="onSubmit" :validation-schema="validateForm" :initial-values="store.publisher" class="form-control">
-    <div class="form-group">
-      <label for="name">Name</label>
-      <Field name="name" />
-      <ErrorMessage name="name" />
-    </div>
-    <div class="form-group">
-      <label for="city">City</label>
-      <Field name="city" />
-      <ErrorMessage name="city" />
-    </div>
-    <input value="Save" type="submit" class="btn w-100">
-  </Form>
+  <PublisherFormComponent 
+    :initial-values="store.publisher"
+    @submit="onSubmit"
+  />
 </template>
 
 <style scoped>

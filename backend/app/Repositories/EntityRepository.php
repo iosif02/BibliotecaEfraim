@@ -108,6 +108,8 @@ class EntityRepository implements IEntityRepository
             $query->where('name', 'like', '%'.$filters['name'].'%');
         }
 
+        $query->orderBy('number');
+
         return $query->paginate($filters['pagination']['per_page'], null, null, $filters['pagination']['page']);
     }
 

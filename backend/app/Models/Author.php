@@ -22,7 +22,7 @@ class Author extends Model
     protected function name(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => $value ? ucfirst($value) : "",
+            get: fn (string $value) => ucwords($value),
             set: fn (string $value) => strtolower($value),
         );
     }

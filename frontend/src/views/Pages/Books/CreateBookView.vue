@@ -82,7 +82,6 @@ var onSubmit = (book: any) => {
             router.back()
         }
     });
-    console.log(book)
 }
 
 let focusedElement: any = ref(null)

@@ -10,6 +10,7 @@ import NotificationHelper from "@/helpers/NotificationHelper";
 export const useBooksStore = defineStore('useBooksStore', {
   state: () => ({
     isLoading: false,
+    isLoadingTwo: false,
 
 		homepage: {
       searchModel: new SearchBookModel(),
@@ -38,7 +39,11 @@ export const useBooksStore = defineStore('useBooksStore', {
     },
     userBorrowedBooks: {
       searchModel: new SearchBookModel(),
-      data: [] as BookModel[]
+      data: [] as DelayedBookModel[]
+    },
+    userHistoryBooks: {
+      searchModel: new SearchBookModel(),
+      data: [] as DelayedBookModel[]
     },
     books: {
       searchModel: new SearchBookModel(),
@@ -95,7 +100,7 @@ export const useBooksStore = defineStore('useBooksStore', {
     },
     searchHomeBooks() {
       this.isLoading = true;
-      axios.post("/books/search", this.homepage.searchModel)
+      axios.post("/books/search-global", this.homepage.searchModel)
       .then(result => {
           if(!result.data) return;
 
@@ -171,7 +176,7 @@ export const useBooksStore = defineStore('useBooksStore', {
     },
     searchUserBorrowedBooks() {
       this.isLoading = true;
-      axios.post("/books/search", this.userBorrowedBooks.searchModel)
+      axios.post("/users/search-borrowed-books", this.userBorrowedBooks.searchModel)
       .then(result => {
           if(!result.data) return;
 
@@ -181,6 +186,19 @@ export const useBooksStore = defineStore('useBooksStore', {
       })
       .catch(error => console.error("Request error: " + error))
       .finally(() => this.isLoading = false);
+    },
+    searchUserHistoryBooks() {
+      this.isLoadingTwo = true;
+      axios.post("/users/search-borrowed-books", this.userHistoryBooks.searchModel)
+      .then(result => {
+          if(!result.data) return;
+
+          this.userHistoryBooks.data = result.data.data;
+          this.userHistoryBooks.searchModel.pagination.total = result.data.total ?? 1;
+          this.userHistoryBooks.searchModel.pagination.last_page = result.data.last_page ?? 1;
+      })
+      .catch(error => console.error("Request error: " + error))
+      .finally(() => this.isLoadingTwo = false);
     },
     async createBook(book: FormData) {
       this.isLoading = true;
@@ -216,6 +234,7 @@ export const useBooksStore = defineStore('useBooksStore', {
       this.isLoading = true;
       return axios.post("/books/return/" + transactionId)
       .then(result => {
+        NotificationHelper.NotifySuccess('Book was returned with scucces!')
         return result.data;
       })
       .catch(error => console.error("Request error: " + error))
@@ -225,6 +244,7 @@ export const useBooksStore = defineStore('useBooksStore', {
       this.isLoading = true;
       return axios.post("/books/extend/" + transactionId)
       .then(result => {
+        NotificationHelper.NotifySuccess('Book was extended with scucces!')
         return result.data;
       })
       .catch(error => console.error("Request error: " + error))

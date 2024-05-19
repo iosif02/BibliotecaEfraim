@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -26,7 +27,7 @@ class Handler extends ExceptionHandler
      * @var array<int, class-string<\Throwable>>
      */
     protected $dontReport = [
-        //
+//        CustomException::class,
     ];
 
     /**
@@ -48,20 +49,19 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         if(config('app.app_env') != "local") {
-            $this->renderable(function (CustomException $e) {
-                return response()->json(['message' => $e->getMessage()], $e->getCode());
-            });
-
             $this->renderable(function (Throwable $e) {
-                if(!$e instanceof ValidationException && !$e instanceof AccessDeniedHttpException && !$e instanceof AuthenticationException)
+                if(!$e instanceof ValidationException && !$e instanceof AccessDeniedHttpException && !$e instanceof AuthenticationException) {
+//                    Log::debug('GenericException logged: ' . $e->getMessage());
                     return response()->json(['message' => 'Something went wrong!'], 400);
+                }
             });
 
             $this->renderable(function (Exception $e) {
-                if(!$e instanceof ValidationException && !$e instanceof AccessDeniedHttpException && !$e instanceof AuthenticationException)
+                if(!$e instanceof ValidationException && !$e instanceof AccessDeniedHttpException && !$e instanceof AuthenticationException) {
+//                    Log::debug('GenericException logged: ' . $e->getMessage());
                     return response()->json(['message' => 'Something went wrong!'], 400);
+                }
             });
         }
-
     }
 }

@@ -39,10 +39,25 @@ class Transactions extends Model
     {
         return Attribute::make(
             get: function() {
-                $start = strtotime($this->return_date);
-                $end = strtotime(now('Europe/Bucharest'));
-                return (int)(($start - $end)/86400);
+                $now = Carbon::now('Europe/Bucharest');
+                return $now->diffInDays($this->attributes['return_date'], false);
             },
+        );
+    }
+
+    protected function lenderName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value ?? ucwords($value),
+            set: fn (string $value) => strtolower($value),
+        );
+    }
+
+    protected function receiverName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value ?? ucwords($value),
+            set: fn (string $value) => strtolower($value),
         );
     }
 

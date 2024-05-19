@@ -4,7 +4,9 @@ namespace App\Repositories;
 
 
 use App\Exceptions\CustomException;
+use App\Models\Book;
 use App\Models\Role;
+use App\Models\Transactions;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
@@ -58,27 +60,64 @@ class UserRepository implements IUserRepository
 //                $query->where('name','admin');
 //            });
 
-            $words = explode(" ", $filters['name']);
-            if(count($words) >= 2){
-                $firstName = trim(preg_replace('/\s+/', ' ', implode(" ", array_slice($words, 0, count($words) - 1))));
-                $lastName = $words[count($words) - 1];
-                $query->where('first_name', 'like', '%'.$firstName.'%')
-                    ->Where('last_name', 'like', '%'.$lastName.'%')
-                    ->orWhere(function ($query) use($filters) {
-                        $query->where('first_name', 'like', '%'.$filters['name'].'%');
-                    });
-            }elseif($words[0] != ""){
-                $query->where(function ($query) use ($words){
-                    $query->where('first_name', 'like', '%' . $words[0] . '%')
-                        ->orWhere('last_name', 'like', '%' . $words[0] . '%');
+        $words = explode(" ", $filters['name']);
+        if(count($words) >= 2){
+            $firstName = trim(preg_replace('/\s+/', ' ', implode(" ", array_slice($words, 0, count($words) - 1))));
+            $lastName = $words[count($words) - 1];
+            $query->where('first_name', 'like', '%'.$firstName.'%')
+                ->Where('last_name', 'like', '%'.$lastName.'%')
+                ->orWhere(function ($query) use($filters) {
+                    $query->where('first_name', 'like', '%'.$filters['name'].'%');
                 });
-            }
+        }elseif($words[0] != ""){
+            $query->where(function ($query) use ($words){
+                $query->where('first_name', 'like', '%' . $words[0] . '%')
+                    ->orWhere('last_name', 'like', '%' . $words[0] . '%');
+            });
+        }
 
         $query->withCount([
             'Transaction' => fn($query) => $query->where('is_returned', false),
         ]);
 
         return $query->paginate($filters['pagination']['per_page'], null, null, $filters['pagination']['page']);
+    }
+
+    public function SearchUserBorrowedBooks(array $filters): ?LengthAwarePaginator
+    {
+        $transaction = Transactions::select('id', 'book_id', 'borrow_date', 'return_date', 'lender_name', 'receiver_name')
+            ->where('user_id', $filters['user'])
+            ->where('is_returned', $filters['isReturned'])
+            ->with([
+                'Book' => fn($query) => $query->select('id', 'title', 'image', 'is_marked'),
+            ])
+            ->orderByDesc('updated_at');
+
+        if(isset($filters['title']) && $filters['title'] != '') {
+            $transaction->whereHas('Book', function ($book) use ($filters) {
+                $book->where('title', 'like', '%' . $filters['title'] . '%');
+            });
+        }
+
+        return $transaction->paginate($filters['pagination']['per_page'], null, null, $filters['pagination']['page']);
+    }
+
+    public function SearchUserHistoryBooks(array $filters): ?LengthAwarePaginator
+    {
+        $book = Book::select('id', 'title', 'image', 'is_marked')
+            ->with([
+                'Transaction' => fn($query) => $query->select('id', 'book_id', 'borrow_date', 'return_date', 'lender_name', 'receiver_name')
+            ])
+            ->whereHas('Transaction', function ($transaction) use ($filters) {
+                $transaction->where('is_returned', false)
+                    ->where('user_id', $filters['user']);
+            });
+
+        if(isset($filters['title']) && $filters['title'] != '') {
+            $book->where('title', 'like', '%' . $filters['title'] . '%');
+        }
+
+        return $book->paginate($filters['pagination']['per_page'], null, null, $filters['pagination']['page']);
     }
 
     /**

@@ -19,11 +19,15 @@ let formatDate = (date: string) => {
 }
 
 const daysLeft = (day: number) => {
-  if(day < 0)
-    return day * (-1) + ' - day(s) late'
-  if(day == 0)
-    return 'the return day'
-  return day + ' - day(s) left'
+  const suffix = day === 1 ? 'day' : 'days';
+  const absDay = Math.abs(day);
+  
+  if (day === 0) {
+    return 'the return day';
+  } else {
+    const status = day > 0 ? 'left' : 'late';
+    return `${absDay} - ${suffix} ${status}`;
+  }
 }
 
 </script>
@@ -33,7 +37,9 @@ const daysLeft = (day: number) => {
       <div class="borrow-book" v-for="transaction in books.transaction">
           <div>
             <div class="row">
-              <p class="transaction-name text-elipsis">{{ transaction.user?.first_name + ' ' + transaction.user?.last_name }}</p>
+              <RouterLink :to="{ name: 'userBorrowedBook', params: { id: transaction.user?.id ?? 0 }, query: { userName: transaction.user?.first_name + ' ' + transaction.user?.last_name } }" class="router-link">
+                <p class="transaction-name text-elipsis">{{ transaction.user?.first_name + ' ' + transaction.user?.last_name }}</p>
+              </RouterLink>
               <StatusBookComponent :status="books.status"/>
             </div>
             <div class="row">
@@ -45,7 +51,7 @@ const daysLeft = (day: number) => {
             <p class="transaction-voluntary text-elipsis">Processed by <span>{{ transaction.lender_name }}</span></p>
             <div class="book-action">
               <p class="transaction-return" @click="$emit('onReturn', transaction.id)">Return</p>
-              <p class="transaction-return" @click="$emit('extend', transaction.id)">Extend</p>
+              <p :style="{ color: transaction.delayed > 0 ? '#999' : '' }" class="transaction-return" @click="$emit('extend', transaction.id)">Extend</p>
             </div>
           </div>
       </div>
@@ -69,26 +75,6 @@ const daysLeft = (day: number) => {
   padding: 16px 10px;
   justify-content: space-between;
   margin-bottom: 15px;
-}
-.status {
-    font-size: 12px;
-    color: #76CE9F;
-    background-color: #DCF2E7;
-    border-radius: 22px;
-    padding: 5px 10px 5px 20px;
-    position: relative;
-    top: -8px;
-}
-.status::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 5px;
-  height: 5px;
-  background: #76CE9F;
-  border-radius: 50%;
-  left: 10px;
 }
 .transaction-name{
   font-family: 'Roboto-500';

@@ -18,6 +18,14 @@ let formatDate = (date: string) => {
     return date;
 }
 
+const daysLeft = (day: number) => {
+  if (day === -1) {
+    return day * -1 + ' day';
+  } else {
+    return day * -1 + ' days';
+  }
+}
+
 </script>
 
 <template>
@@ -30,7 +38,7 @@ let formatDate = (date: string) => {
                         <div class="top-section">
                             <p class="name">{{ currentBook.user?.first_name }} {{ currentBook.user?.last_name }}</p>
                            <!-- <p class="date">{{ formatDate(currentBook.return_date) }} - {{ delayedDays(currentBook.return_date) }} days</p> -->
-                           <p class="date highlight">{{ formatDate(currentBook.return_date) }} - {{ currentBook.delayed * (-1) }} days</p>
+                           <p class="date highlight">{{ formatDate(currentBook.return_date) }} - {{ daysLeft(currentBook.delayed) }}</p>
                         </div>
                         <div class="book-title">{{ currentBook.book.title }}</div>
                     </div>

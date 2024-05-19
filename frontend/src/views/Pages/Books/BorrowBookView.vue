@@ -82,7 +82,7 @@ var hideModal = () => {
   />
 
   <UsersComponent v-if="UsersStore.users.searchModel.pagination.total" :users="UsersStore.users.data" @openModal="(userId) => openModal(userId)"/>
-  <div class="no-found" v-else-if="!(BooksStore.isLoading || UsersStore.isLoading)"> No Result Found! </div>
+  <div class="no-found" v-else-if="!(BooksStore.isLoading || UsersStore.isLoading)"> No result found </div>
 
   <Pagination
     :current-page="UsersStore.users.searchModel.pagination.page"

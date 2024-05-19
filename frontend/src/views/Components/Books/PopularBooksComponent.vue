@@ -16,12 +16,17 @@ defineProps({
     <div class="books">
         <template v-for="book in books">
             <RouterLink :to="{ name: 'bookDetails', params: { id: book.id} }" class="book">
-                    <img :src="$filters.imageFilter(book.image)" alt="">
+                    <div class="image">
+                        <img :src="$filters.imageFilter(book.image)" alt="">
+                        <div v-if="book.is_marked" class="mark-container">
+                            <span class="pi pi-star-fill mark"></span>
+                        </div>
+                    </div>
                     <div class="details">
                         <div class="title">{{ book.title }}</div>
-                        <div class="author">{{book.authors?.map(author => author.name).join(', ')}}</div>
+                        <div class="author">{{ book.authors?.map(author => author.name).join(', ') }}</div>
                         <div class="category">
-                            <span class="category-name"><span class="category-number">({{ book.category?.number || book.number }})</span>{{ book.category?.name || book.category }}</span>
+                            <span class="category-name"><span class="category-number">({{ typeof book.category === 'object' ? book.category?.number : book?.number }})</span>{{ typeof book.category === 'object' ? book.category?.name : book?.category }}</span>
                             <!-- <router-link :to="{name: 'categoryBooks', params: { id: book.category?.id || book?.category_id || 0 }, query: { categoryName: book.category?.name || book?.category } }" class="category-name"><span class="category-number">({{ book?.number ||  book.category?.number}})</span>{{ book.category?.name || book?.category }}</router-link> -->
                         </div>
                     </div>
@@ -49,11 +54,38 @@ defineProps({
 .books .book:nth-child(3n){
     justify-self: end;
 }
-img {
+.image {
     width: 100%;
     height: 128px;
     border-radius: 12px;
+    margin-bottom: 5px;
+    position: relative;
+}
+.image img {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
     object-fit: cover;
+}
+.mark-container{
+  top: 0px;
+  right: 10px;
+  position: absolute;
+  width: 1.2rem;
+  height: 1.7rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 5px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.mark{
+  font-size: 0.8rem; 
+  color: yellow;
+  top: 10px;
+  left: 15px;
 }
 .author {
     font-size: 12px;

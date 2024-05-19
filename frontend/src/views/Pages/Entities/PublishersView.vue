@@ -56,7 +56,7 @@ var openModal = (selectedPublisherId: number) => {
   />
 
   <PublishersComponent v-if="store.publishers.searchModel.pagination.total" :publishers="store.publishers.data" routeName="editPublisher" @openModal="(selectedPublisherId) => openModal(selectedPublisherId)"/>
-  <div class="no-found" v-else-if="!store.isLoading"> No Result Found! </div>
+  <div class="no-found" v-else-if="!store.isLoading"> No result found </div>
 
   <Pagination
     :current-page="store.publishers.searchModel.pagination.page"

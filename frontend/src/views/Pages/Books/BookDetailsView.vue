@@ -10,9 +10,8 @@ const props = defineProps({
   id: String
 })
 
-if(!props.id || props.id == '0' || !parseInt(props.id)){
-  router.back();
-}
+if(!props.id || props.id == '0' || !parseInt(props.id))
+    router.back();
 
 const store = useBooksStore();
 store.fetchBookDetails(props.id ?? "");
@@ -23,10 +22,16 @@ let bookId: number = 0;
 
 var openModal = (transactionId: number, type: string) => {
   bookId = transactionId;
+  const transaction = store.bookDetails.transaction.find(item => item.id = transactionId);
+  const condition = (transaction?.delayed ?? 0) <= 0;
+
   if(type == 'return')
     return showModalOnReturn.value = true;
-  if(type == 'extend')
+    
+  if(type == 'extend' && condition)
     return showModalOnExtend.value = true;
+
+  if(type == '')
   return showModal.value = true;
 }
 
@@ -44,6 +49,7 @@ var returnBook = () => {
       store.fetchBookDetails(props.id ?? "")
       .then(() => {
         store.fetchHomepage();
+        store.searchHomeBooks();
       })
   })
 }
@@ -65,7 +71,7 @@ var deleteBook = () => {
   store.deleteBook(parseInt(props.id || ''))
   .then(result => {
     if(result){
-      if(store.homepage.searchModel.searchAll != "")
+      if(store.homepage.searchModel.title != "")
         store.searchHomeBooks();
       router.back();
     }
@@ -105,7 +111,7 @@ var deleteBook = () => {
   />
 
   <GoBack goBackText="Back">
-    <button @click="router.push({ name: 'editBook', params: { id: props.id }, query: { actionName: 'update' } })" class="btn-edit">Edit</button>
+    <button @click="router.push({ name: 'editBook', params: { id: props.id } })" class="btn-edit">Edit</button>
     <button @click="openModal(0, '')" class="btn-delete">Delete</button>
   </GoBack>
   
@@ -118,7 +124,10 @@ var deleteBook = () => {
     </div>
   </div>
 
-  <BorrowBookComponent :books="store.bookDetails" @onReturn="(transactionId) => openModal(transactionId, 'return')" @extend="(transactionId) => openModal(transactionId, 'extend')"/>
+  <BorrowBookComponent 
+    :books="store.bookDetails" 
+    @onReturn="(transactionId) => openModal(transactionId, 'return')" 
+    @extend="(transactionId) => openModal(transactionId, 'extend')"/>
 
   <RouterLink :to="{ name: 'borrowBook', params: { id: props.id }}">
     <button 

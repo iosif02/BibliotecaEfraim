@@ -20,7 +20,7 @@ store.fetchCategories();
     />
 
     <Categories v-if="store.categories.searchModel.pagination.total" :categories="store.categories.data" />
-    <div class="no-found" v-else-if="!store.isLoading"> No Result Found! </div>
+    <div class="no-found" v-else-if="!store.isLoading"> No result found </div>
 
     <Pagination
         :current-page="store.categories.searchModel.pagination.page"

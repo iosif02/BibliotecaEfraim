@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { Form, Field, ErrorMessage } from 'vee-validate';
-import * as yup from 'yup';
 import { useEntitiesStore } from '@/stores/entities-store';
 import router from '@/router';
+import AuthorFormComponent from '@/views/Components/Entities/AuthorFormComponent.vue';
 
 const store = useEntitiesStore();
-
-const validateForm = yup.object({
-    name: yup.string().min(5).max(28).required(),
-});
 
 var onSubmit = (author: any) => {
   store.createAuthor(author)
@@ -27,14 +22,9 @@ var onSubmit = (author: any) => {
     <GoBack goBackText="Add Author"/>
 	</div>
 
-  <Form @submit="onSubmit" :validation-schema="validateForm" class="form-control">
-    <div class="form-group">
-      <label for="name">Name</label>
-      <Field name="name" />
-      <ErrorMessage name="name" />
-    </div>
-    <input value="Add" type="submit" class="btn w-100">
-  </Form>
+  <AuthorFormComponent 
+    @submit="onSubmit"
+  />
 </template>
 
 <style scoped>
